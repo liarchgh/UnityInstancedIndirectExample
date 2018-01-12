@@ -17,7 +17,7 @@ public class ShowRowsInGPUIns : MonoBehaviour {
     public bool receiveShadows = false;
 
     private ComputeBuffer argsBuffer;
-    private ComputeBuffer colorBuffer;
+    private ComputeBuffer shaderBuffer;
 
     private uint[] args = new uint[5] { 0, 0, 0, 0, 0 };
 
@@ -38,26 +38,36 @@ public class ShowRowsInGPUIns : MonoBehaviour {
         instanceMesh.bounds = new Bounds (Vector3.zero, Vector3.one * 10000f); //avoid culling
 
         /// Colors - for debug only
-        if (colorBuffer != null) colorBuffer.Release ();
+        if (shaderBuffer != null) shaderBuffer.Release ();
 
-        colorBuffer = new ComputeBuffer (instanceCount * 3, 16);
+        shaderBuffer = new ComputeBuffer (instanceCount, 16);
 
         // Vector4[][] colors = new Vector4[instanceCount][];
-        Vector4[] colors = new Vector4[instanceCount * 3];
+        Vector4[] buffer = new Vector4[instanceCount];
         for (int i = 0; i < instanceCount; i++) {
-            // colors[i] = new Vector4[2];
-            colors[i * 2] = new Vector4(Random.Range (0, 10000) / 100.0f, Random.Range (0, 10000) / 100.0f, Random.Range (0, 10000) / 100.0f, 10);
-
-            colors[i * 2 + 1] = Random.ColorHSV ();
-            colors[i * 2 + 2] = Random.ColorHSV ();
-            // colors[i][0] = Random.ColorHSV ();
-            // colors[i][1] = new Vector4 (i * i, i * i, i * i, 1);
+            buffer[i] = new Vector4(Random.Range (0.0f, 10000.0f) / 100.0f, Random.Range (0.0f, 10000.0f) / 100.0f, Random.Range (0.0f, 10000.0f) / 100.0f, 10);
         }
 
-        colorBuffer.SetData (colors);
+        shaderBuffer.SetData (buffer);
+        instanceMaterial.SetBuffer ("positionBuffer", shaderBuffer);
 
-        instanceMaterial.SetBuffer ("colorBuffer", colorBuffer);
+        buffer = new Vector4[instanceCount];
+        for (int i = 0; i < instanceCount; i++) {
+            buffer[i] = Random.ColorHSV ();
+        }
 
+        shaderBuffer.SetData (buffer);
+        instanceMaterial.SetBuffer ("colorBuffer", shaderBuffer);
+
+        buffer = new Vector4[instanceCount];
+        for (int i = 0; i < instanceCount; i++) {
+            buffer[i] = Random.ColorHSV ();
+        }
+
+        shaderBuffer.SetData (buffer);
+        instanceMaterial.SetBuffer ("rotationBuffer", shaderBuffer);
+
+        // instanceMaterial.SetBuffer ("rotationBuffer", shaderBuffer);
         // indirect args
         uint numIndices = (instanceMesh != null) ? (uint) instanceMesh.GetIndexCount (0) : 0;
         args[0] = numIndices;
@@ -68,8 +78,8 @@ public class ShowRowsInGPUIns : MonoBehaviour {
     }
 
     void OnDisable () {
-        if (colorBuffer != null) colorBuffer.Release ();
-        colorBuffer = null;
+        if (shaderBuffer != null) shaderBuffer.Release ();
+        shaderBuffer = null;
 
         if (argsBuffer != null) argsBuffer.Release ();
         argsBuffer = null;
