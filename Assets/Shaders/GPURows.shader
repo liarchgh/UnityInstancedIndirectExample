@@ -125,6 +125,8 @@ Shader "leesue/GPURows"
 
 		#ifdef UNITY_PROCEDURAL_INSTANCING_ENABLED
 			StructuredBuffer<float4> colorBuffer;
+			StructuredBuffer<float4> positionBuffer;
+			StructuredBuffer<float4> rotationBuffer;
 		#endif
 		float _Dim;
 
@@ -132,14 +134,6 @@ Shader "leesue/GPURows"
 		{
 			float2 noise = (frac(sin(dot(uv ,float2(12.9898,78.233)*2.0)) * 43758.5453));
 			return abs(noise.x + noise.y) * 0.5;
-		}
-
-		void rotate2D(inout float2 v, float r)
-		{
-			float s, c;
-			sincos(r, s, c);
-			v = float2(v.x * c - v.y * s, v.x * s + v.y * c);
-			// v = float2(v.x * c, v.y * s);
 		}
 
 	void setup()
@@ -150,7 +144,7 @@ Shader "leesue/GPURows"
 		float2 uv = float2( floor(unity_InstanceID / _Dim) / _Dim, (unity_InstanceID % (int)_Dim) / _Dim);
 		// in this case, _Dim can be replaced by the size in the world
 		// float4 position = float4((uv.x - 0.5) * _Dim, 0, (uv.y - 0.5) * _Dim, rand(uv)); 
-		float4 position = colorBuffer[unity_InstanceID * 2];
+		float4 position = positionBuffer[unity_InstanceID];
 		float scale = position.w;
 
 		// float rotation = scale * scale * _Time.y * 0.5f;
@@ -172,7 +166,7 @@ Shader "leesue/GPURows"
 	{
 		float4 rot = float4(0,0,0,0);
 #ifdef UNITY_PROCEDURAL_INSTANCING_ENABLED
-		rot = colorBuffer[unity_InstanceID * 2 + 2];
+		rot = rotationBuffer[unity_InstanceID];
 #endif
 		//x,y,z 为随时间变化的量，数值可以自己随意设置
 		// float x =  rot.x;
