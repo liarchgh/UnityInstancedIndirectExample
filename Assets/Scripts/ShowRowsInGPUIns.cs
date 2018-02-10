@@ -10,7 +10,8 @@ using UnityEngine.Rendering;
 public class ShowRowsInGPUIns : MonoBehaviour {
     public GameObject exp;
     public int instanceCount = 0;
-    public Mesh instanceMesh;
+    public Mesh instanceMesh1;
+    public Mesh instanceMesh2;
     public Material instanceMaterial;
 
     public ShadowCastingMode castShadows = ShadowCastingMode.Off;
@@ -26,31 +27,36 @@ public class ShowRowsInGPUIns : MonoBehaviour {
     void OnEnable () {
         Debug.Log (exp.transform.rotation.eulerAngles);
         argsBuffer = new ComputeBuffer (5, sizeof (uint), ComputeBufferType.IndirectArguments);
-        CreateBuffers ();
+        CreateBuffers (instanceMesh1);
+        CreateBuffers (instanceMesh2);
     }
 
     void Update () {
-        Graphics.DrawMeshInstancedIndirect (instanceMesh, 0, instanceMaterial, instanceMesh.bounds, argsBuffer, 0, null, castShadows, receiveShadows);
+        Graphics.DrawMeshInstancedIndirect (instanceMesh1, 0, instanceMaterial, instanceMesh1.bounds, argsBuffer, 0, null, castShadows, receiveShadows);
+        Graphics.DrawMeshInstancedIndirect (instanceMesh2, 0, instanceMaterial, instanceMesh2.bounds, argsBuffer, 0, null, castShadows, receiveShadows);
     }
 
-    void CreateBuffers () {
+    void CreateBuffers (Mesh instanceMesh) {
         if (instanceCount < 1) instanceCount = 1;
 
         //instanceCount = Mathf.ClosestPowerOfTwo(instanceCount);
         instanceMesh.bounds = new Bounds (Vector3.zero, Vector3.one * 10000f); //avoid culling
 
         /// Colors - for debug only
-        if (positionBuffer != null) positionBuffer.Release ();
+        // if (positionBuffer != null)
+        // positionBuffer.Release ();
         positionBuffer = new ComputeBuffer (instanceCount, 16);
-        if (colorBuffer != null) colorBuffer.Release ();
+        // if (colorBuffer != null)
+        // colorBuffer.Release ();
         colorBuffer = new ComputeBuffer (instanceCount, 16);
-        if (rotationBuffer != null) rotationBuffer.Release ();
+        // if (rotationBuffer != null)
+        // rotationBuffer.Release ();
         rotationBuffer = new ComputeBuffer (instanceCount, 16);
 
         // Vector4[][] colors = new Vector4[instanceCount][];
         Vector4[] buffer = new Vector4[instanceCount];
         for (int i = 0; i < instanceCount; i++) {
-            buffer[i] = new Vector4 (Random.Range (0.0f, 10000.0f) / 1000.0f, Random.Range (0.0f, 10000.0f) / 1000.0f, Random.Range (0.0f, 10000.0f) / 1000.0f, 10);
+            buffer[i] = new Vector4 (Random.Range (0.0f, 10000.0f) / 100.0f, Random.Range (0.0f, 10000.0f) / 100.0f, Random.Range (0.0f, 10000.0f) / 100.0f, 10);
         }
 
         positionBuffer.SetData (buffer);
