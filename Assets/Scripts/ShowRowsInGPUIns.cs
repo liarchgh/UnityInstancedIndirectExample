@@ -8,6 +8,7 @@ using UnityEngine.Rendering;
 /// The color buffer is used for debug only.
 /// </summary>
 public class ShowRowsInGPUIns : MonoBehaviour {
+    public GameObject exp;
     public int instanceCount = 0;
     public Mesh instanceMesh;
     public Material instanceMaterial;
@@ -22,7 +23,8 @@ public class ShowRowsInGPUIns : MonoBehaviour {
 
     private uint[] args = new uint[5] { 0, 0, 0, 0, 0 };
 
-    void OnEnable() {
+    void OnEnable () {
+        Debug.Log (exp.transform.rotation.eulerAngles);
         argsBuffer = new ComputeBuffer (5, sizeof (uint), ComputeBufferType.IndirectArguments);
         CreateBuffers ();
     }
@@ -45,11 +47,10 @@ public class ShowRowsInGPUIns : MonoBehaviour {
         if (rotationBuffer != null) rotationBuffer.Release ();
         rotationBuffer = new ComputeBuffer (instanceCount, 16);
 
-
         // Vector4[][] colors = new Vector4[instanceCount][];
         Vector4[] buffer = new Vector4[instanceCount];
         for (int i = 0; i < instanceCount; i++) {
-            buffer[i] = new Vector4 (Random.Range (0.0f, 10000.0f) / 100.0f, Random.Range (0.0f, 10000.0f) / 100.0f, Random.Range (0.0f, 10000.0f) / 100.0f, 10);
+            buffer[i] = new Vector4 (Random.Range (0.0f, 10000.0f) / 1000.0f, Random.Range (0.0f, 10000.0f) / 1000.0f, Random.Range (0.0f, 10000.0f) / 1000.0f, 10);
         }
 
         positionBuffer.SetData (buffer);
@@ -57,7 +58,9 @@ public class ShowRowsInGPUIns : MonoBehaviour {
 
         buffer = new Vector4[instanceCount];
         for (int i = 0; i < instanceCount; i++) {
-            buffer[i] = new Vector4 (Random.Range (0.0f, 10000.0f) / 100.0f, Random.Range (0.0f, 10000.0f) / 100.0f, Random.Range (0.0f, 10000.0f) / 100.0f, 10);
+            // buffer[i] = new Vector4 (Random.Range (0.0f, 10000.0f) / 100.0f, Random.Range (0.0f, 10000.0f) / 100.0f, Random.Range (0.0f, 10000.0f) / 100.0f, 10);
+            // buffer[i] = new Vector4 (Mathf.PI / 2, Mathf.PI / 2, Mathf.PI / 2, 10);
+            buffer[i] = new Vector4 (exp.transform.rotation.eulerAngles.x, exp.transform.rotation.eulerAngles.y, exp.transform.rotation.eulerAngles.z, 10);
         }
 
         rotationBuffer.SetData (buffer);

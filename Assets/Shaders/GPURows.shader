@@ -39,6 +39,7 @@
 
             v2f vert (appdata_full v, uint instanceID : SV_InstanceID)
             {
+                float PI = 3.141592653f;
             #if SHADER_TARGET >= 45
                 float4 data = positionBuffer[instanceID];
             #else
@@ -54,14 +55,14 @@
 	// #ifdef UNITY_PROCEDURAL_INSTANCING_ENABLED
             #if SHADER_TARGET >= 45
 				rot = rotationBuffer[instanceID];
-	#endif
-				float x = rot.x;
-				float y = rot.y;
-				float z = rot.z;
+            #endif
+				float x = -rot.x * PI / 180;
+				float y = -rot.y * PI / 180;
+				float z = -rot.z * PI / 180;
 				//定义一个 4*4 的矩阵类型，将旋转和平移包含进去
 				float4x4 mx = {1, 0, 0, 0,
-							0, cos(x), -sin(x), 0,
-							0, sin(x), cos(x), 0,
+							0, cos(x), sin(x), 0,
+							0, -sin(x), cos(x), 0,
 							0, 0, 0, 1};
 				float4x4 my = {cos(y), 0, sin(-y), 0,
 							0, 1, 0, 0,
@@ -72,9 +73,10 @@
 							0, 0, 1, 0,
 							0, 0, 0, 1};
 				//对顶点进行变换
+				// localPosition = mul(mz, localPosition)+mul(mx, localPosition)+mul(my, localPosition);
+				localPosition = mul(mz, localPosition);
 				localPosition = mul(mx, localPosition);
 				localPosition = mul(my, localPosition);
-				localPosition = mul(mz, localPosition);
 
                 float3 worldPosition = data.xyz + localPosition;
 
